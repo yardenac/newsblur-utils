@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+
+import urllib.parse
+import urllib.request
+import ssl
+
+nburl = "https://newsblur.com/api/"
+authdata = urllib.parse.urlencode({
+	"username" : "***",
+	"password" : "***",
+}).encode()
+
+print(urllib.request.urlopen(nburl+"login",authdata,capath="/etc/ssl/certs").read().decode())
