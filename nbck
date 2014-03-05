@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import http.cookiejar
 import urllib.parse
 import urllib.request
 import ssl
@@ -12,6 +13,10 @@ authdata = urllib.parse.urlencode({
 
 opener = urllib.request.build_opener()
 
+# set up cookies
+cj = http.cookiejar.CookieJar()
+opener.add_handler(urllib.request.HTTPCookieProcessor(cj))
+
 # set up secure TLS
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
 context.verify_mode = ssl.CERT_REQUIRED
@@ -19,3 +24,4 @@ context.load_verify_locations(capath="/etc/ssl/certs")
 opener.add_handler(urllib.request.HTTPSHandler(context=context))
 
 print(opener.open(nburl+"login",authdata).read().decode())
+print(opener.open(nburl+"logout").read().decode())
