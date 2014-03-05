@@ -5,7 +5,7 @@ import urllib.parse
 import urllib.request
 import ssl
 
-nburl = "https://newsblur.com/api/"
+nburl = "https://newsblur.com/"
 authdata = urllib.parse.urlencode({
 	"username" : "***",
 	"password" : "***",
@@ -23,5 +23,6 @@ context.verify_mode = ssl.CERT_REQUIRED
 context.load_verify_locations(capath="/etc/ssl/certs")
 opener.add_handler(urllib.request.HTTPSHandler(context=context))
 
-print(opener.open(nburl+"login",authdata).read().decode())
-print(opener.open(nburl+"logout").read().decode())
+print(opener.open(nburl+"api/login",authdata).read().decode())
+print(opener.open(nburl+"reader/feeds").read().decode())
+print(opener.open(nburl+"api/logout").read().decode())
