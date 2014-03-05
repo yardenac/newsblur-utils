@@ -1,15 +1,27 @@
 #!/usr/bin/python3
 
+import configparser
 import http.cookiejar
+import os
 import urllib.parse
 import urllib.request
 import ssl
 
-nburl = "https://newsblur.com/"
-authdata = urllib.parse.urlencode({
-	"username" : "***",
-	"password" : "***",
-}).encode()
+#### CONFIG ####
+
+config_global = configparser.ConfigParser()
+config_global['DEFAULT'] = {
+	'username': 'user',
+	'password': 'password',
+	'url': 'https://newsblur.com/',
+	'configfile' : os.environ['HOME'] + '/.config/newsblur/login',
+}
+config_global.read(config_global['DEFAULT']['configfile'])
+config = config_global['DEFAULT']
+
+
+
+#### CONNECT ####
 
 opener = urllib.request.build_opener()
 
@@ -23,6 +35,21 @@ context.verify_mode = ssl.CERT_REQUIRED
 context.load_verify_locations(capath="/etc/ssl/certs")
 opener.add_handler(urllib.request.HTTPSHandler(context=context))
 
-print(opener.open(nburl+"api/login",authdata).read().decode())
-print(opener.open(nburl+"reader/feeds").read().decode())
-print(opener.open(nburl+"api/logout").read().decode())
+# log in
+authdata = urllib.parse.urlencode({
+	"username" : config["username"],
+	"password" : config["password"],
+}).encode()
+print(opener.open(config['url']+"api/login",authdata).read().decode())
+
+
+
+#### DO STUFF ####
+
+print(opener.open(config['url']+"reader/feeds").read().decode())
+
+
+
+#### CLEANUP ####
+
+print(opener.open(config['url']+"api/logout").read().decode())
