@@ -10,4 +10,12 @@ authdata = urllib.parse.urlencode({
 	"password" : "***",
 }).encode()
 
-print(urllib.request.urlopen(nburl+"login",authdata,capath="/etc/ssl/certs").read().decode())
+opener = urllib.request.build_opener()
+
+# set up secure TLS
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+context.verify_mode = ssl.CERT_REQUIRED
+context.load_verify_locations(capath="/etc/ssl/certs")
+opener.add_handler(urllib.request.HTTPSHandler(context=context))
+
+print(opener.open(nburl+"login",authdata).read().decode())
