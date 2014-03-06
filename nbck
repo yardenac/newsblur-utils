@@ -41,7 +41,7 @@ def nbtry(opener,*args):
     if (response['result'] != 'ok'):
         print("connection failed...")
         return(0)
-    if (response['code'] != 1):
+    if ('code' in response and response['code'] != 1):
         for e in response['errors']['__all__']:
                 print(e)
         return(0)
