@@ -60,8 +60,20 @@ if not nbtry(opener,config['url']+"api/login",authdata):
 
 #### DO STUFF ####
 
-print(opener.open(config['url']+"reader/feeds").read().decode())
+print(json.dumps(nbtry(opener,config['url']+"reader/unread_story_hashes?include_timestamps"),indent=4))
 
+#print(json.dumps(nbtry(opener,config['url']+"reader/feeds")['folders'],indent=4))
+# starred_count
+# authenticated
+# starred_counts
+# user_profile
+# categories
+# social_feeds
+# folders
+# result
+# social_services
+# feeds
+# social_profile
 
 
 #### CLEANUP ####
