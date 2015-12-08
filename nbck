@@ -60,9 +60,12 @@ if not nbtry(opener,config['url']+"api/login",authdata):
 
 #### DO STUFF ####
 
-print(json.dumps(nbtry(opener,config['url']+"reader/unread_story_hashes?include_timestamps"),indent=4))
+feeds = nbtry(opener,config['url']+"reader/feeds")
+for feed in feeds['starred_counts']:
+    count = feed['count']
+    feed_name = feeds['feeds'][str(feed['feed_id'])]['feed_link']
+    print(str(count) + "   " + feed_name);
 
-#print(json.dumps(nbtry(opener,config['url']+"reader/feeds")['folders'],indent=4))
 # starred_count
 # authenticated
 # starred_counts
