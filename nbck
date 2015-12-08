@@ -21,8 +21,6 @@ config_global['DEFAULT'] = {
 config_global.read(config_global['DEFAULT']['configfile'])
 config = config_global['DEFAULT']
 
-
-
 #### CONNECT ####
 
 opener = urllib.request.build_opener()
@@ -62,9 +60,13 @@ if not nbtry(opener,config['url']+"api/login",authdata):
 
 feeds = nbtry(opener,config['url']+"reader/feeds")
 for feed in feeds['starred_counts']:
-    count = feed['count']
-    feed_name = feeds['feeds'][str(feed['feed_id'])]['feed_link']
-    print(str(count) + "   " + feed_name);
+    id = feed['feed_id']
+    if str(id) in feeds['feeds']:
+        feed_name = feeds['feeds'][str(feed['feed_id'])]['feed_link']
+    else:
+        if (str(id) == 'None'): continue
+        feed_name = 'https://newsblur.com/site/' + str(id)
+    print(str(feed['count']).rjust(5) + " " + feed_name);
 
 # starred_count
 # authenticated
