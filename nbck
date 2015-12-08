@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import configparser
+import console
 import http.cookiejar
 import json
 import os
@@ -13,13 +14,14 @@ import sys
 
 config_global = configparser.ConfigParser()
 config_global['DEFAULT'] = {
-	'username': 'user',
-	'password': 'password',
-	'url': 'https://newsblur.com/',
-	'configfile' : os.environ['HOME'] + '/.config/newsblur/login',
+    'username': 'user',
+    'password': 'password',
+    'url': 'https://newsblur.com/',
+    'configfile' : os.environ['HOME'] + '/.config/newsblur/login',
 }
 config_global.read(config_global['DEFAULT']['configfile'])
 config = config_global['DEFAULT']
+numw = 3 # max width of number column (0-999 saved feeds...)
 
 #### CONNECT ####
 
@@ -68,6 +70,7 @@ def urlify(name):
         else: s += '-'
     return s
 
+maxw = int(console.getTerminalSize()[0]/2 - numw - 9)
 feeds = nbtry(opener,config['url']+"reader/feeds")
 for feed in feeds['starred_counts']:
     id = feed['feed_id']
@@ -76,7 +79,7 @@ for feed in feeds['starred_counts']:
     else:
         if (str(id) == 'None'): continue
         feed_name = 'https://newsblur.com/site/' + str(id)
-    print(str(feed['count']).rjust(5) + " " + feed_name);
+    print(str(feed['count']).rjust(numw) + " " + feed_name[0:maxw]);
 
 # starred_count
 # authenticated
