@@ -1,3 +1,5 @@
+import itertools
+
 # stolen from https://stackoverflow.com/questions/566746/how-to-get-console-window-width-in-python
 def getTerminalSize():
     import os
@@ -36,4 +38,4 @@ def urlify(name):
         if (char in ' _'): s += '-'
         if (char in good_chars): s += char
         else: s += '-'
-    return s
+    return ''.join(ch for ch, _ in itertools.groupby(s))
