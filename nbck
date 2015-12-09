@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import configparser
-import console
+import lib
 import http.cookiejar
 import json
 import os
@@ -60,22 +60,12 @@ if not nbtry(opener,config['url']+"api/login",authdata):
 
 #### DO STUFF ####
 
-def urlify(name):
-    good_chars = 'abcdefghijklmnopqrstuvwxyz1234567890-'
-    s = ''
-    for char in name:
-        char = char.lower()
-        if (char in ' _'): s += '-'
-        if (char in good_chars): s += char
-        else: s += '-'
-    return s
-
-maxw = int(console.getTerminalSize()[0]/2 - numw - 9)
+maxw = int(lib.getTerminalSize()[0]/2 - numw - 9)
 feeds = nbtry(opener,config['url']+"reader/feeds")
 for feed in feeds['starred_counts']:
     id = feed['feed_id']
     if str(id) in feeds['feeds']:
-        feed_name = 'https://newsblur.com/site/' + str(id) + '/' + urlify(feeds['feeds'][str(id)]['feed_title'])
+        feed_name = 'https://newsblur.com/site/' + str(id) + '/' + lib.urlify(feeds['feeds'][str(id)]['feed_title'])
     else:
         if (str(id) == 'None'): continue
         feed_name = 'https://newsblur.com/site/' + str(id)
