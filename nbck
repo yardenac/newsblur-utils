@@ -5,6 +5,7 @@ import lib
 import http.cookiejar
 import json
 import os
+import re
 import urllib.parse
 import urllib.request
 import ssl
@@ -60,7 +61,7 @@ if not nbtry(opener,config['url']+"api/login",authdata):
 
 #### DO STUFF ####
 
-maxw = int(lib.getTerminalSize()[0]/2 - numw - 9)
+maxw = int(lib.getTerminalSize()[0]/2 - numw - 9 - 7)
 feeds = nbtry(opener,config['url']+"reader/feeds")
 for feed in feeds['starred_counts']:
     id = feed['feed_id']
@@ -69,7 +70,8 @@ for feed in feeds['starred_counts']:
     else:
         if (str(id) == 'None'): continue
         feed_name = 'https://newsblur.com/site/' + str(id)
-    print(str(feed['count']).rjust(numw) + " " + feed_name[0:maxw]);
+    percent = " (" + "{:1.1f}".format(100 * feed['count'] / feeds['starred_count']) + "%) "
+    print(str(feed['count']).rjust(numw) + percent + feed_name[0:maxw]);
 
 # starred_count
 # authenticated
