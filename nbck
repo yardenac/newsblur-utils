@@ -59,19 +59,24 @@ if not nbtry(opener,config['url']+"api/login",authdata):
     sys.exit(1)
 
 
+#### ROUTINES ####
+
+def list_starred():
+    maxw = int(lib.getTerminalSize()[0]/2 - numw - 9 - 7)
+    feeds = nbtry(opener,config['url']+"reader/feeds")
+    for feed in feeds['starred_counts']:
+        id = feed['feed_id']
+        if str(id) in feeds['feeds']:
+            feed_name = 'https://newsblur.com/site/' + str(id) + '/' + lib.urlify(feeds['feeds'][str(id)]['feed_title'])
+        else:
+            if (str(id) == 'None'): continue
+            feed_name = 'https://newsblur.com/site/' + str(id)
+        percent = " (" + "{:1.1f}".format(100 * feed['count'] / feeds['starred_count']) + "%) "
+        print(str(feed['count']).rjust(numw) + percent + feed_name[0:maxw]);
+
 #### DO STUFF ####
 
-maxw = int(lib.getTerminalSize()[0]/2 - numw - 9 - 7)
-feeds = nbtry(opener,config['url']+"reader/feeds")
-for feed in feeds['starred_counts']:
-    id = feed['feed_id']
-    if str(id) in feeds['feeds']:
-        feed_name = 'https://newsblur.com/site/' + str(id) + '/' + lib.urlify(feeds['feeds'][str(id)]['feed_title'])
-    else:
-        if (str(id) == 'None'): continue
-        feed_name = 'https://newsblur.com/site/' + str(id)
-    percent = " (" + "{:1.1f}".format(100 * feed['count'] / feeds['starred_count']) + "%) "
-    print(str(feed['count']).rjust(numw) + percent + feed_name[0:maxw]);
+list_starred();
 
 # starred_count
 # authenticated
