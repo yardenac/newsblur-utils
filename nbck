@@ -74,6 +74,17 @@ def list_starred():
         percent = " (" + "{:1.1f}".format(100 * feed['count'] / feeds['starred_count']) + "%) "
         print(str(feed['count']).rjust(numw) + percent + feed_name[0:maxw]);
 
+def feed_archive(id):
+    maxw = int(lib.getTerminalSize()[0])
+    storynum = 0
+    for page in range(1,100,1):
+        for story in nbtry(opener,config['url']+"reader/feed/"+str(id)+"?page="+str(page))["stories"]:
+            storynum += 1
+            out = str(storynum).rjust(4)+" "+str(page).rjust(2)+" "+story["long_parsed_date"].ljust(13)+" " \
+                  +story["story_permalink"]+" " \
+                  +story["story_title"].replace("\n"," ").splitlines()[0];
+            print(out[0:maxw])
+
 #### DO STUFF ####
 
 list_starred();
