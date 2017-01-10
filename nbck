@@ -85,6 +85,29 @@ def feed_archive(id):
                   +story["story_title"].replace("\n"," ").splitlines()[0];
             print(out[0:maxw])
 
+feedstr = "";
+
+def recursive_folder_parse(obj):
+    global feedstr
+    for id in obj:
+        if isinstance(id, int):
+            feedstr = feedstr + 'feed_id=' + str(id) + '&'
+            continue
+        if isinstance(id, dict):
+            for key in id.keys():
+                recursive_folder_parse(id[key])
+
+def mark_folder_read(name):
+    global feedstr
+    if not name: return false
+    feeds = nbtry(opener,config['url']+"reader/feeds")
+    for folder in feeds["folders"]:
+        if not isinstance(folder, dict): continue
+        if name not in folder: continue
+        recursive_folder_parse(folder[name])
+    # Request Line is too large (8413 > 8190)
+    marking = nbtry(opener,config['url']+"reader/mark_feed_as_read?"+feedstr)
+
 #### DO STUFF ####
 
 list_starred();
