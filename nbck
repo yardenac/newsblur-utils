@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import argparse
 import configparser
 import lib
 import http.cookiejar
@@ -37,8 +38,11 @@ context.verify_mode = ssl.CERT_REQUIRED
 context.load_verify_locations(capath="/etc/ssl/certs")
 opener.add_handler(urllib.request.HTTPSHandler(context=context))
 
-def nbtry(opener,*args):
-    response = json.loads(opener.open(*args).read().decode())
+def nbtry(opener,*args,post=None):
+    if post:
+        response = json.loads(opener.open(*args,urllib.parse.urlencode(post).encode("utf-8")).read().decode())
+    else:
+        response = json.loads(opener.open(*args).read().decode())
     if (response['result'] != 'ok'):
         print("connection failed...")
         return(0)
@@ -117,11 +121,31 @@ def mark_folder_read(name):
         print(requeststring)
 #        marking = nbtry(opener,requeststring)
 
+def add_feed(url,folder=''):
+    if not url: return
+    if folder:
+        result = nbtry(opener,config['url']+"reader/add_url",post={"folder": folder,"url": url})
+    else:
+        result = nbtry(opener,config['url']+"reader/add_url",post={"url": url})
+    print(result)
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--list_starred', action='store_true', help='List feeds sorted by how many starred')
+parser.add_argument('--addfeed', help='Add a feed')
+parser.add_argument('--folder', help='Folder to add it to')
+args = parser.parse_args()
+
 #### DO STUFF ####
 
-#mark_folder_read('goldpan');
-list_starred();
+if args.list_starred:
+    list_starred();
+elif args.addfeed:
+    if not args.folder: args.folder = ''
+    add_feed(args.addfeed, args.folder)
+else:
+    print('no options given')
 
+#mark_folder_read('goldpan');
 # starred_count
 # authenticated
 # starred_counts
@@ -133,7 +157,6 @@ list_starred();
 # social_services
 # feeds
 # social_profile
-
 
 #### CLEANUP ####
 
