@@ -121,13 +121,20 @@ def mark_folder_read(name):
         print(requeststring)
 #        marking = nbtry(opener,requeststring)
 
+def show_feed(id):
+    print("https://newsblur.com/site/"+str(id)+"/")
+    #print(nbtry(opener,config['url']+"rss_feeds/statistics/"+str(id)))
+    for story in nbtry(opener,config['url']+"reader/feed/"+str(id)+"?include_story_content=false")["stories"]:
+        print("   "+story['short_parsed_date']+"  "+story['story_title'])
+
 def add_feed(url,folder=''):
     if not url: return
     if folder:
         result = nbtry(opener,config['url']+"reader/add_url",post={"folder": folder,"url": url})
     else:
         result = nbtry(opener,config['url']+"reader/add_url",post={"url": url})
-    print(result)
+    if result["feed"]["id"]:
+        show_feed(result["feed"]["id"])
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--list_starred', action='store_true', help='List feeds sorted by how many starred')
