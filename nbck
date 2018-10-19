@@ -144,6 +144,11 @@ def add_feed(url,folder=''):
         result = nbtry(opener,config['url']+"reader/add_url",post={"url": url})
     if result["feed"]["id"]:
         show_feed(result["feed"]["id"])
+        markread = nbtry(opener,config['url']+"reader/mark_feed_as_read",post={"feed_id": result["feed"]["id"]})
+        if not markread["errors"] and (markread["result"] == "ok"):
+            print("[marked read]")
+        else:
+            print(markread)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--list_starred', action='store_true', help='List feeds sorted by how many starred')
