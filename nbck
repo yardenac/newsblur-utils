@@ -7,8 +7,7 @@ import http.cookiejar
 import json
 import os
 import re
-import urllib.parse
-import urllib.request
+import urllib
 import ssl
 import sys
 
@@ -40,16 +39,20 @@ opener.add_handler(urllib.request.HTTPSHandler(context=context))
 
 def nbtry(opener,*args,post=None):
     if post:
-        response = json.loads(opener.open(*args,urllib.parse.urlencode(post).encode("utf-8")).read().decode())
+        try:
+            response = json.loads(opener.open(*args,urllib.parse.urlencode(post).encode("utf-8")).read().decode())
+        except urllib2.HTTPError as e:
+            print("HTTP Error: " + e)
     else:
         response = json.loads(opener.open(*args).read().decode())
     if (response['result'] != 'ok'):
         print("connection failed...")
         return(0)
     if ('code' in response and response['code'] != 1):
-        for e in response['errors']['__all__']:
+        if 'errors' in response:
+            for e in response['errors']['__all__']:
                 print(e)
-        return(0)
+            return(0)
     return(response)
 
 # log in
@@ -142,6 +145,9 @@ def add_feed(url,folder=''):
         result = nbtry(opener,config['url']+"reader/add_url",post={"folder": folder,"url": url})
     else:
         result = nbtry(opener,config['url']+"reader/add_url",post={"url": url})
+    if not result["feed"]:
+        print("NO FEEDS FOUND")
+        return
     if result["feed"]["id"]:
         show_feed(result["feed"]["id"])
         markread = nbtry(opener,config['url']+"reader/mark_feed_as_read",post={"feed_id": result["feed"]["id"]})
