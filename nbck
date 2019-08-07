@@ -23,6 +23,7 @@ config_global['DEFAULT'] = {
 config_global.read(config_global['DEFAULT']['configfile'])
 config = config_global['DEFAULT']
 numw = 3 # max width of number column (0-999 saved feeds...)
+exitcode = 0
 
 #### CONNECT ####
 
@@ -41,7 +42,7 @@ def nbtry(opener,*args,post=None):
     if post:
         try:
             response = json.loads(opener.open(*args,urllib.parse.urlencode(post).encode("utf-8")).read().decode())
-        except urllib2.HTTPError as e:
+        except urllib.error.HTTPError as e:
             print("HTTP Error: " + e)
     else:
         response = json.loads(opener.open(*args).read().decode())
@@ -147,7 +148,7 @@ def add_feed(url,folder=''):
         result = nbtry(opener,config['url']+"reader/add_url",post={"url": url})
     if not result["feed"]:
         print("NO FEEDS FOUND")
-        return
+        return 1
     if result["feed"]["id"]:
         show_feed(result["feed"]["id"])
         markread = nbtry(opener,config['url']+"reader/mark_feed_as_read",post={"feed_id": result["feed"]["id"]})
@@ -168,7 +169,7 @@ if args.list_starred:
     list_starred();
 elif args.addfeed:
     if not args.folder: args.folder = ''
-    add_feed(args.addfeed, args.folder)
+    exitcode = add_feed(args.addfeed, args.folder)
 else:
     print('no options given')
 
@@ -189,4 +190,6 @@ else:
 
 if not nbtry(opener,config['url']+"api/logout"):
     print("logout failed")
-    sys.exit(1)
+    exitcode = 1
+
+sys.exit(exitcode)
