@@ -6,6 +6,7 @@ import lib
 import http.cookiejar
 import json
 import os
+import pprint
 import re
 import urllib
 import ssl
@@ -128,6 +129,7 @@ def mark_folder_read(name):
         print(requeststring)
 #        marking = nbtry(opener,requeststring)
 
+pp = pprint.PrettyPrinter(indent=4)
 def show_feed(id):
     print("https://newsblur.com/site/"+str(id)+"/")
     #print(nbtry(opener,config['url']+"rss_feeds/statistics/"+str(id)))
@@ -138,7 +140,8 @@ def show_feed(id):
     print(info["feed_address"])
     stories = nbtry(opener,config['url']+"reader/feed/"+str(id)+"?include_story_content=false")
     for story in stories["stories"]:
-        printw("   "+story['short_parsed_date']+"  "+story['story_title'])
+        #pp.pprint(story)
+        printw("   "+story['short_parsed_date']+" "+story['story_permalink']+"  "+story['story_title'])
 
 def add_feed(url,folder=''):
     if not url: return
