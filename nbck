@@ -24,7 +24,8 @@ config_global['DEFAULT'] = {
 }
 config_global.read(config_global['DEFAULT']['configfile'])
 config = config_global['DEFAULT']
-numw = 3 # max width of number column (0-999 saved feeds...)
+wnum  = 3 # max width of number column for saved feeds (0-999)
+
 exitcode = 0
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -112,7 +113,7 @@ def printw(str):
     print(str[0:int(lib.getTerminalSize()[0])])
 
 def list_starred():
-    maxw = int(lib.getTerminalSize()[0]/2 - numw - 9 - 7)
+    maxw = int(lib.getTerminalSize()[0]/2 - wnum - 9 - 7)
     feeds = nbtry(opener,config['url']+"reader/feeds")
     for feed in feeds['starred_counts']:
         id = feed['feed_id']
@@ -122,7 +123,7 @@ def list_starred():
             if (str(id) == 'None'): continue
             feed_name = 'https://newsblur.com/site/' + str(id)
         percent = " (" + "{:1.1f}".format(100 * feed['count'] / feeds['starred_count']) + "%) "
-        print(str(feed['count']).rjust(numw) + percent + feed_name[0:maxw]);
+        print(str(feed['count']).rjust(wnum) + percent + feed_name[0:maxw]);
 
 def feed_archive(id):
     maxw = int(lib.getTerminalSize()[0])
