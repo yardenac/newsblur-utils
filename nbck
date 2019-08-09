@@ -216,32 +216,20 @@ parser.add_argument('--folder', help='Folder to add it to')
 args = parser.parse_args()
 
 #### DO STUFF ####
-
-if args.list_starred:
-    list_starred();
-elif args.addfeed:
-    if not args.folder: args.folder = ''
-    exitcode = add_feed(args.addfeed, args.folder)
-else:
-    print('no options given')
-
-#mark_folder_read('goldpan');
-# starred_count
-# authenticated
-# starred_counts
-# user_profile
-# categories
-# social_feeds
-# folders
-# result
-# social_services
-# feeds
-# social_profile
-
-#### CLEANUP ####
-
-if not nbtry(opener,config['url']+"api/logout"):
-    print("logout failed")
-    exitcode = 1
+try:
+    if args.list_starred:
+        list_starred();
+    elif args.dump_starred:
+        dump_starred();
+    elif args.addfeed:
+        if not args.folder: args.folder = ''
+        exitcode = add_feed(args.addfeed, args.folder)
+    else:
+        print('no options given')
+    if not nbtry(opener,config['url']+"api/logout"):
+        print("logout failed")
+        exitcode = 1
+except KeyboardInterrupt:
+    sys.exit(1)
 
 sys.exit(exitcode)
