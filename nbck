@@ -25,6 +25,8 @@ config_global['DEFAULT'] = {
 config_global.read(config_global['DEFAULT']['configfile'])
 config = config_global['DEFAULT']
 wnum  = 3 # max width of number column for saved feeds (0-999)
+wids  = 7 # max width of number column for feed ids
+wstar = 5 # max width of number column for starred stories
 
 exitcode = 0
 pp = pprint.PrettyPrinter(indent=4)
@@ -125,6 +127,14 @@ def list_starred():
         percent = " (" + "{:1.1f}".format(100 * feed['count'] / feeds['starred_count']) + "%) "
         print(str(feed['count']).rjust(wnum) + percent + feed_name[0:maxw]);
 
+def dump_starred():
+    maxw = int(lib.getTerminalSize()[0]/2 - wids - wstar - 9 - 7)
+    for page in range(0,10000,1):
+       sss = nbtry(opener,config['url']+"reader/starred_stories?page="+str(page))
+       if len(sss['stories']) is None: break
+       for i, ss in enumerate(sss['stories']):
+           print(str(page*10+i+1).rjust(wstar)+" "+ss['story_date']+" https://newsblur.com/site/"+str(ss['story_feed_id']).ljust(wids)+" "+ss['story_permalink'])
+
 def feed_archive(id):
     maxw = int(lib.getTerminalSize()[0])
     storynum = 0
@@ -200,6 +210,7 @@ def add_feed(url,folder=''):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--list_starred', action='store_true', help='List feeds sorted by how many starred')
+parser.add_argument('--dump_starred', action='store_true', help='Dump every starred item - expensive!')
 parser.add_argument('--addfeed', help='Add a feed')
 parser.add_argument('--folder', help='Folder to add it to')
 args = parser.parse_args()
