@@ -11,6 +11,7 @@ import re
 import urllib
 import ssl
 import sys
+import traceback
 
 #### CONFIG ####
 
@@ -25,6 +26,7 @@ config_global.read(config_global['DEFAULT']['configfile'])
 config = config_global['DEFAULT']
 numw = 3 # max width of number column (0-999 saved feeds...)
 exitcode = 0
+pp = pprint.PrettyPrinter(indent=4)
 
 #### CONNECT ####
 
@@ -39,23 +41,59 @@ context.verify_mode = ssl.CERT_REQUIRED
 context.load_verify_locations(capath="/etc/ssl/certs")
 opener.add_handler(urllib.request.HTTPSHandler(context=context))
 
+# print errors
+def eprint(str):
+    print("\033[31m"+str+"\033[0m",file=sys.stderr)
+
+def ecompare(e,reason,filename,func,code=None):
+    if not str(e.reason) == reason: return False
+    lastframe = traceback.extract_tb(e.__traceback__)[-1]
+    if filename == 'printme':
+        eprint("printing filename: "+lastframe.filename)
+    elif not lastframe.filename == filename:
+        return False
+    if func == 'printme':
+        eprint("printing func: "+lastframe.name)
+    elif lastframe.name != func:
+        return False
+    if code is not None and str(e.code) != code: return False
+    return True
+
 def nbtry(opener,*args,post=None):
-    if post:
+    while True:
         try:
-            response = json.loads(opener.open(*args,urllib.parse.urlencode(post).encode("utf-8")).read().decode())
-        except urllib.error.HTTPError as e:
-            print("HTTP Error: " + e)
-    else:
-        response = json.loads(opener.open(*args).read().decode())
-    if (response['result'] != 'ok'):
-        print("connection failed...")
-        return(0)
-    if ('code' in response and response['code'] != 1):
-        if 'errors' in response:
-            for e in response['errors']['__all__']:
-                print(e)
-            return(0)
-    return(response)
+            if post:
+                response = opener.open(*args,urllib.parse.urlencode(post).encode("utf-8"))
+            else:
+                response = opener.open(*args)
+            jdata = json.loads(response.read().decode())
+        except urllib.error.URLError as e:
+            if ecompare(e,'[Errno 0] Error','/usr/lib/python3.7/urllib/request.py','do_open'):
+                eprint('network error, trying again')
+            elif ecompare(e,'Tunnel connection failed: 503 Forwarding failure','/usr/lib/python3.7/urllib/request.py','do_open'):
+                eprint('tunnel fail, trying again')
+            elif ecompare(e,'Request Time-out','/usr/lib/python3.7/urllib/request.py','http_error_default'):
+                eprint('request timeout, trying again')
+            else:
+                frame = traceback.extract_tb(e.__traceback__)[-1]
+                eprint("urlerror: "+str(e.errno)+" | "+str(e.strerror)+" | "+str(e.reason)+" | "+str(e)+" | "+pp.pformat(e)+" | "+frame.filename+" | "+frame.name+" -- trying again")
+            continue
+        except ConnectionError as e:
+            eprint('connection error, trying again')
+            continue
+        except (http.client.HTTPException, http.client.IncompleteRead) as e:
+            eprint('http exception, trying again')
+            continue
+        if (jdata['result'] != 'ok'):
+            eprint("jdata error, trying again")
+            continue
+        if ('code' in jdata and jdata['code'] != 1):
+            if 'errors' in jdata:
+                for e in jdata['errors']['__all__']:
+                    eprint('json error: '+e+' ... trying again')
+                continue
+        break
+    return(jdata)
 
 # log in
 authdata = urllib.parse.urlencode({
@@ -129,7 +167,6 @@ def mark_folder_read(name):
         print(requeststring)
 #        marking = nbtry(opener,requeststring)
 
-pp = pprint.PrettyPrinter(indent=4)
 def show_feed(id):
     print("https://newsblur.com/site/"+str(id)+"/")
     #print(nbtry(opener,config['url']+"rss_feeds/statistics/"+str(id)))
