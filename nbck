@@ -119,6 +119,7 @@ def list_starred():
     feeds = nbtry(opener,config['url']+"reader/feeds")
     for feed in feeds['starred_counts']:
         id = feed['feed_id']
+        print("trying: "+str(id)+" "+str(feed['feed_address']));
         if str(id) in feeds['feeds']:
             feed_name = 'https://newsblur.com/site/' + str(id) + '/' + lib.urlify(feeds['feeds'][str(id)]['feed_title'])
         else:
